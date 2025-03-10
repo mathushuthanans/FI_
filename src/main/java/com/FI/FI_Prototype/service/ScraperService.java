@@ -3,12 +3,17 @@ package com.FI.FI_Prototype.service;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Service;
+
+
 
 @Service
 public class ScraperService {
@@ -31,29 +36,40 @@ public class ScraperService {
         String rawInfo = driver.findElement(By.tagName("body")).getText();
         return rawInfo;
     }
-    public List<WebElement> scrapTags(){
-        /*
-         * *
-         * get the --href-- links and then add to scrap them all. 
-         */
+    public Set <String> scrapTags(){
         driver.get(url);
-
         List<WebElement> links = driver.findElements(By.tagName("a"));
+        Set<String> refinedSubPageUrls = new HashSet<>();
         
-        return links;                
-    }
 
-    public String printTags(){
-        driver.get(url);
-        List<WebElement> links = scrapTags();
-        String s = "";
-        
-        for (WebElement link : links){
-            System.out.println(link.getAttribute("href"));
-            s += link.getAttribute("href") + " ";
+        for (WebElement link : links) {
+            String subPageUrl = link.getAttribute("href");
+
+            if ((subPageUrl != null) && subPageUrl.startsWith(url)){
+                subPageUrl = subPageUrl.split("#")[0];
+                refinedSubPageUrls.add(subPageUrl);
+            }
         }
 
-        return s;           
+
+        return refinedSubPageUrls;                
+    }
+
+    public List <String> printTags(){
+        driver.get(url);
+        // links are obtained  -- done
+        List <String> subPageUrls = new ArrayList<>(scrapTags());
+
+        
+        List <String> strList = new ArrayList<>();
+        
+        for (String subPage : subPageUrls){ 
+            driver.navigate().to(subPage);
+            String rawInfo = driver.findElement(By.tagName("body")).getText();
+            strList.add(rawInfo);
+        }
+        
+        return strList;           
 
        
 
