@@ -1,6 +1,7 @@
 package com.FI.FI_Prototype.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +20,18 @@ public class RestHomeController {
     }
 
     @GetMapping("/")
-    public List <String> scrapInformation() {
-        List <String> rawInfo = new ArrayList<>();
+    public List<HashMap<String, String>> scrapInformation() {
+        List <String> subPages = new ArrayList<>();
+        List <HashMap<String, String>> map = new ArrayList<>();
         try{
-            rawInfo = scraperService.printTags();
+            subPages = scraperService.getSubPagesUrls();
+            map = scraperService.processRawData(subPages);
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        return rawInfo;
+
+        return map;
     }
     
 }
